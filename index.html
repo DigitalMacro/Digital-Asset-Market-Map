@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Institutional Digital Asset Map</title>
+<style>
+  :root{
+    --ink:#0D1620;
+    --panel:#132131;
+    --panel-2:#182B3E;
+    --rule:#263D52;
+    --rule-soft:#1C2E3F;
+    --paper:#E6EDF3;
+    --mute:#7F97AB;
+    --shipping:#3FCFA0;
+    --building:#E8B04B;
+    --gated:#C8687C;
+    --demand:#7FA6D9;
+    --rail:#4E7FA8;
+    --now:#F2F6F9;
+    --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+    --sans:"Inter","Helvetica Neue",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  }
+
+  *{box-sizing:border-box}
+
+  html{-webkit-text-size-adjust:100%}
+
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--paper);
+    font-family:var(--sans);
+    font-size:15px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .wrap{max-width:1240px;margin:0 auto;padding:0 28px}
+
+  /* ---------- shared type ---------- */
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--mute);
+  }
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+  /* ---------- masthead ---------- */
+  .masthead{border-bottom:1px solid var(--rule);padding:34px 0 40px}
+  .masthead-top{
+    display:flex;justify-content:space-between;align-items:baseline;
+    gap:20px;flex-wrap:wrap;margin-bottom:30px;
+  }
+  .masthead h1{
+    font-size:clamp(31px,4.6vw,54px);
+    line-height:1.04;
+    letter-spacing:-.032em;
+    font-weight:640;
+    margin:0 0 16px;
+    max-width:19ch;
+  }
+  .masthead h1 em{font-style:normal;color:var(--mute)}
+  .deck{max-width:60ch;color:#B4C6D4;font-size:16.5px;margin:0}
+  .deck strong{color:var(--paper);font-weight:600}
+
+  /* ---------- settlement clock ---------- */
+  .clock{padding:40px 0 10px;border-bottom:1px solid var(--rule)}
+  .clock-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:26px}
+  .clock-head p{margin:6px 0 0;color:var(--mute);font-size:13.5px;max-width:52ch}
+
+  .rail-frame{position:relative;padding:52px 0 30px}
+  .rail{position:relative;height:2px;background:var(--rule);border-radius:2px}
+  .rail-fill{position:absolute;left:0;top:0;bottom:0;background:var(--rail);width:57.1%}
+
+  .yearmark{position:absolute;top:-46px;bottom:-24px;width:1px;background:var(--rule-soft)}
+  .yearmark span{
+    position:absolute;top:-2px;left:8px;
+    font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--mute);
+  }
+
+  .tick{
+    position:absolute;top:50%;width:11px;height:11px;margin:-5.5px 0 0 -5.5px;
+    border-radius:50%;background:var(--ink);border:2px solid var(--rail);
+    cursor:pointer;padding:0;transition:transform .18s ease,background .18s ease;
+  }
+  .tick[data-kind="statute"]{border-color:#9FB8CC}
+  .tick[data-kind="rule"]{border-color:var(--building)}
+  .tick[data-kind="launch"]{border-color:var(--shipping)}
+  .tick[data-kind="projected"]{border-color:var(--mute);border-style:dotted;border-width:2px}
+  .tick:hover,.tick:focus-visible{transform:scale(1.55);background:var(--paper);outline:none}
+  .tick.on{transform:scale(1.75);background:var(--paper)}
+  .tick.dim{opacity:.24}
+
+  .now{position:absolute;top:-40px;bottom:-18px;width:1px;background:var(--now);left:57.1%}
+  .now::after{
+    content:"NOW · 30 AUG 26";
+    position:absolute;top:-16px;left:50%;transform:translateX(-50%);
+    font-family:var(--mono);font-size:10px;letter-spacing:.13em;
+    color:var(--ink);background:var(--now);padding:3px 7px;border-radius:2px;white-space:nowrap;
+  }
+
+  .legend{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px}
+  .legend span{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+  .dot{width:9px;height:9px;border-radius:50%;border:2px solid;background:var(--ink);flex:none}
+
+  /* ---------- ledger ---------- */
+  .ledger{margin-top:26px;border-top:1px solid var(--rule-soft);max-height:224px;overflow-y:auto}
+  .row{
+    display:grid;grid-template-columns:104px 88px 1fr;gap:16px;align-items:baseline;
+    width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--rule-soft);
+    padding:11px 10px;color:var(--paper);font-family:inherit;font-size:14px;cursor:pointer;
+  }
+  .row:hover,.row:focus-visible{background:var(--panel);outline:none}
+  .row.on{background:var(--panel-2)}
+  .row .d{font-family:var(--mono);font-size:12px;color:var(--mute);letter-spacing:.03em}
+  .row .k{font-family:var(--mono);font-size:10px;letter-spacing:.11em;text-transform:uppercase}
+  .row[data-kind="statute"] .k{color:#9FB8CC}
+  .row[data-kind="rule"] .k{color:var(--building)}
+  .row[data-kind="launch"] .k{color:var(--shipping)}
+  .row[data-kind="projected"] .k{color:var(--mute)}
+  .row .t{color:#C9D8E4}
+  .row.on .t{color:var(--paper)}
+
+
+  /* ---------- agency track ---------- */
+  .agency{padding:52px 0 10px;border-bottom:1px solid var(--rule)}
+  .agency-head{max-width:62ch;margin-bottom:34px}
+  .agency-head h2{font-size:clamp(23px,2.7vw,31px);letter-spacing:-.024em;font-weight:620;margin:10px 0 0}
+  .agency-head p{color:#B4C6D4;font-size:15px;margin:14px 0 0}
+  .agency-head p strong{color:var(--paper);font-weight:600}
+  .track{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1px;background:var(--rule-soft);border:1px solid var(--rule-soft)}
+  .tcard{background:var(--ink);padding:22px 20px}
+  .tcard .who{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--rail);margin-bottom:9px}
+  .tcard h3{font-size:17.5px;line-height:1.25;letter-spacing:-.015em;font-weight:600;margin:0 0 12px}
+  .tcard ul{margin:0;padding:0;list-style:none}
+  .tcard li{font-size:13.5px;color:#C0D0DC;padding:8px 0;border-bottom:1px solid var(--rule-soft);line-height:1.5}
+  .tcard li:last-child{border-bottom:0}
+  .tcard li b{color:var(--paper);font-weight:600}
+  .tcard .d{font-family:var(--mono);font-size:10.5px;color:var(--mute);letter-spacing:.05em;display:block;margin-bottom:2px}
+
+  .bene{margin-top:1px;background:var(--panel);border:1px solid var(--rule-soft);padding:24px 22px}
+  .bene h3{font-size:17.5px;font-weight:600;letter-spacing:-.015em;margin:0 0 6px}
+  .bene > p{color:var(--mute);font-size:13.5px;margin:0 0 20px;max-width:70ch}
+  .tiers2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+  .btier .lab{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:10px}
+  .toks{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:11px}
+  .tok{font-family:var(--mono);font-size:11px;letter-spacing:.06em;padding:4px 9px;border-radius:2px;background:rgba(63,207,160,.12);color:var(--shipping)}
+  .tok.mid{background:rgba(232,176,75,.13);color:var(--building)}
+  .tok.low{background:rgba(127,166,217,.13);color:var(--demand)}
+  .btier p{font-size:13px;color:#A8BDCD;margin:0;line-height:1.5}
+
+  .hl{margin-top:26px;padding-top:26px;border-top:1px solid var(--rule)}
+  .hl-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;margin-bottom:16px}
+  .hl-head h4{font-size:21px;font-weight:640;letter-spacing:-.02em;margin:8px 0 0}
+  .hl-move{text-align:right;flex:none}
+  .hl-move .pct{display:block;font-family:var(--mono);font-size:27px;color:var(--shipping);letter-spacing:-.02em}
+  .hl-move .sub{font-family:var(--mono);font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--mute)}
+  .hl-lead{font-size:15px;color:#C4D4E0;margin:0 0 24px;max-width:88ch;line-height:1.6}
+  .hl-lead b{color:var(--paper);font-weight:600}
+  .hl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:28px;margin-bottom:28px}
+  .hl-col p{font-size:13.5px;color:#A8BDCD;margin:0 0 12px;line-height:1.55}
+  .hl-col p:last-child{margin-bottom:0}
+  .hl-col p b{color:var(--paper);font-weight:600}
+  .btier .lab,.hl .lab{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:10px;display:block}
+
+  .thesis{border:1px solid var(--rule);border-radius:2px;padding:22px 20px;background:rgba(13,22,32,.55)}
+  .thesis-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:28px}
+  .thesis-grid p{font-size:13.5px;color:#A8BDCD;margin:0 0 12px;line-height:1.55}
+  .thesis-grid p b{color:var(--paper);font-weight:600}
+  .th-lab{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px}
+  .th-lab.bull{color:var(--shipping)}
+  .th-lab.bear{color:var(--gated)}
+  .watch{margin:22px 0 0;padding-top:16px;border-top:1px solid var(--rule-soft);font-size:13.5px;color:#B4C6D4;line-height:1.55}
+  .watch b{color:var(--paper);font-weight:600}
+  .caution{margin-top:22px;padding-top:18px;border-top:1px solid var(--rule);font-size:13.5px;color:#B4C6D4;max-width:78ch}
+  .caution b{color:var(--paper);font-weight:600}
+
+  /* ---------- controls ---------- */
+  .controls{padding:34px 0 26px;display:flex;gap:34px;flex-wrap:wrap;align-items:flex-end;border-bottom:1px solid var(--rule)}
+  .ctrl-label{display:block;margin-bottom:10px}
+  .chips{display:flex;gap:7px;flex-wrap:wrap}
+  .chip{
+    font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+    background:none;border:1px solid var(--rule);color:var(--mute);
+    padding:7px 13px;border-radius:2px;cursor:pointer;transition:.15s;
+  }
+  .chip:hover{border-color:var(--rail);color:var(--paper)}
+  .chip:focus-visible{outline:2px solid var(--rail);outline-offset:2px}
+  .chip[aria-pressed="true"]{background:var(--paper);border-color:var(--paper);color:var(--ink)}
+  .readout{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--mute);padding-bottom:7px}
+  .readout b{color:var(--paper);font-weight:500}
+
+  /* ---------- segment grid ---------- */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(322px,1fr));gap:1px;background:var(--rule-soft);border-bottom:1px solid var(--rule-soft);margin-bottom:0}
+  .card{background:var(--ink);padding:24px 22px 20px;display:flex;flex-direction:column;transition:background .16s}
+  .card:hover{background:var(--panel)}
+  .card.sel{background:var(--panel-2)}
+  .card.hidden{display:none}
+
+  .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:13px}
+  .idx{font-family:var(--mono);font-size:11.5px;color:var(--mute);letter-spacing:.08em;padding-top:3px}
+  .status{
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+    padding:4px 8px;border-radius:2px;white-space:nowrap;flex:none;
+  }
+  .status.shipping{background:rgba(63,207,160,.13);color:var(--shipping)}
+  .status.building{background:rgba(232,176,75,.13);color:var(--building)}
+  .status.gated{background:rgba(200,104,124,.15);color:var(--gated)}
+  .status.demand{background:rgba(127,166,217,.14);color:var(--demand)}
+
+  .card h3{font-size:19.5px;line-height:1.22;letter-spacing:-.018em;font-weight:600;margin:0 0 9px}
+  .layer{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--mute);margin-bottom:14px}
+  .firms{font-size:13px;color:#93AABD;line-height:1.5;margin:0 0 15px;padding-bottom:15px;border-bottom:1px solid var(--rule-soft)}
+  .take{font-size:14px;color:#C4D4E0;margin:0 0 16px}
+  .take b{color:var(--paper);font-weight:600}
+
+  .roles-btn{
+    margin-top:auto;background:none;border:1px solid var(--rule);color:var(--mute);
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+    padding:9px 12px;border-radius:2px;cursor:pointer;text-align:left;display:flex;
+    justify-content:space-between;align-items:center;gap:10px;transition:.15s;
+  }
+  .roles-btn:hover{border-color:var(--rail);color:var(--paper)}
+  .roles-btn:focus-visible{outline:2px solid var(--rail);outline-offset:2px}
+  .roles-btn .car{transition:transform .2s}
+  .roles-btn[aria-expanded="true"] .car{transform:rotate(90deg)}
+
+  .roles{margin:14px 0 0;padding:0;list-style:none;display:none}
+  .roles.open{display:block}
+  .roles li{padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:13.5px}
+  .roles li:last-child{border-bottom:0;padding-bottom:0}
+  .roles .rn{display:block;color:var(--paper);font-weight:500;margin-bottom:2px}
+  .roles .rd{display:block;color:var(--mute);font-size:12.5px;line-height:1.45}
+
+  /* ---------- tiers ---------- */
+  .tiers{padding:66px 0 20px}
+  .tiers-head{max-width:56ch;margin-bottom:32px}
+  .tiers-head h2,.clock-head h2,.seg-head h2{font-size:clamp(23px,2.7vw,31px);letter-spacing:-.024em;font-weight:620;margin:10px 0 0}
+  .tiers-head p{color:var(--mute);font-size:14.5px;margin:12px 0 0}
+  .tier{display:grid;grid-template-columns:132px 1fr;gap:26px;padding:24px 0;border-top:1px solid var(--rule-soft)}
+  .tier:last-child{border-bottom:1px solid var(--rule-soft)}
+  .tier-k{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);padding-top:3px}
+  .tier-k b{display:block;color:var(--paper);font-size:26px;letter-spacing:-.02em;margin-bottom:5px;font-weight:600}
+  .tier h4{margin:0 0 8px;font-size:16.5px;font-weight:600;letter-spacing:-.012em}
+  .tier p{margin:0 0 11px;color:#A8BDCD;font-size:14px}
+  .tier .need{font-family:var(--mono);font-size:11.5px;color:var(--mute);letter-spacing:.02em}
+  .tier .need b{color:#B4C6D4;font-weight:400}
+  .bar{height:3px;background:var(--rule);margin-bottom:11px;max-width:230px}
+  .bar i{display:block;height:100%;background:var(--shipping)}
+
+  /* ---------- footer ---------- */
+  footer{border-top:1px solid var(--rule);margin-top:56px;padding:30px 0 60px;color:var(--mute);font-size:13px}
+  footer p{margin:0 0 8px;max-width:70ch}
+
+  .seg-head{padding:30px 0 22px}
+  .seg-head p{color:var(--mute);font-size:14px;margin:12px 0 0;max-width:58ch}
+
+  @media(max-width:820px){
+    .wrap{padding:0 18px}
+    .row{grid-template-columns:92px 1fr;gap:10px}
+    .row .k{grid-column:2;margin-top:-4px}
+    .tier{grid-template-columns:1fr;gap:12px}
+    .now::after{font-size:9px}
+    .readout{margin-left:0;width:100%}
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    *{transition:none!important;animation:none!important}
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="masthead-top">
+      <span class="eyebrow">Institutional digital assets — adoption &amp; hiring map</span>
+      <span class="eyebrow num">Rev. 30 Aug 2026</span>
+    </div>
+    <h1>Digital Asset Regulation <em>&amp;</em> Market Map</h1>
+    <p class="deck">Twelve segments of institutional finance, sorted by what has shipped rather than what has been announced.</p>
+  </div>
+</header>
+
+<section class="clock">
+  <div class="wrap">
+    <div class="clock-head">
+      <div>
+        <span class="eyebrow">The settlement clock</span>
+        <h2>Three years of sequencing</h2>
+        <p>Select a segment below to plot its milestones on this rail. Statute moves slowly; rulemaking and launches stopped waiting for it in August.</p>
+      </div>
+      <div class="legend">
+        <span><i class="dot" style="border-color:#9FB8CC"></i>Statute</span>
+        <span><i class="dot" style="border-color:var(--building)"></i>Rulemaking</span>
+        <span><i class="dot" style="border-color:var(--shipping)"></i>Shipped</span>
+        <span><i class="dot" style="border-color:var(--mute);border-style:dotted"></i>Projected</span>
+      </div>
+    </div>
+
+    <div class="rail-frame">
+      <div id="years"></div>
+      <div class="rail"><div class="rail-fill"></div></div>
+      <div class="now" aria-hidden="true"></div>
+      <div id="ticks"></div>
+    </div>
+
+    <div class="ledger" id="ledger" role="list"></div>
+  </div>
+</section>
+
+<section class="agency">
+  <div class="wrap">
+    <div class="agency-head">
+      <span class="eyebrow">Outside the halls of Congress</span>
+      <h2>The agency track</h2>
+      <p>Between 17 and 20 August the executive branch ran a four-day sequence that did more for market structure than the Senate managed all year. <strong>The operative question shifted from "will Congress act" to "how far can the agencies go without it."</strong> For anyone screening employers, this is the sharper filter: firms gated on legislation are still waiting, while firms building against agency rulemaking now have dated documents to build toward.</p>
+    </div>
+
+    <div class="track">
+      <article class="tcard">
+        <div class="who">White House · 19 Aug</div>
+        <h3>From whether to how</h3>
+        <ul>
+          <li><span class="d">The shift</span>The March 2025 summit asked whether crypto should be regulated. This one asked how — an operational agenda built around agency action because the bill is stuck.</li>
+          <li><span class="d">Three tracks</span>Tokenization of real-world assets, digital asset market structure, and prediction markets. <b>Tokenization got the most attention.</b></li>
+          <li><span class="d">Who was in the room</span>Coinbase, Ripple, Gemini, Kraken alongside Nasdaq, NYSE, CME and DTCC — with Atkins, Selig and crypto adviser Patrick Witt on the regulatory side. The TradFi guest list is the signal.</li>
+          <li><span class="d">The thesis</span>Bitwise's Matt Hougan argued the next growth phase comes from moving existing assets on-chain, not inventing new ones: ~$2T crypto against $150T+ in global equities and bonds.</li>
+        </ul>
+      </article>
+
+      <article class="tcard">
+        <div class="who">SEC · 18 Aug</div>
+        <h3>Regulation Crypto Assets</h3>
+        <ul>
+          <li><span class="d">What it is</span>A 401-page proposing release — the first purpose-built offering framework for crypto assets. Advanced by written vote after the scheduled 14 August open meeting was abruptly cancelled.</li>
+          <li><span class="d">Startup exemption</span>Up to <b>$5M over a rolling four-year period</b>, no financial statements required.</li>
+          <li><span class="d">Fundraising exemption</span>Up to <b>$75M per 12 months</b>, conditioned on financial statements and ongoing reporting.</li>
+          <li><span class="d">The safe harbor</span>The consequential piece. A token exits investment-contract treatment once the issuer certifies it has completed or permanently ceased the essential managerial efforts it promised. This is the mechanism the Ripple litigation never produced.</li>
+          <li><span class="d">Preemption</span>A new "qualified purchaser" definition would preempt state registration for covered offerings and certain secondary trades.</li>
+          <li><span class="d">Not the same thing</span>Distinct from the separate "innovation exemption" for tokenized securities, which still hasn't emerged.</li>
+        </ul>
+      </article>
+
+      <article class="tcard">
+        <div class="who">CFTC · 20 Aug</div>
+        <h3>The backup plan, stated out loud</h3>
+        <ul>
+          <li><span class="d">The headline</span>Selig directed staff to prepare a federal market-structure regime for crypto assets <b>without waiting for Congress</b> — covering existing registrants and exchanges currently outside the registration system.</li>
+          <li><span class="d">Innovation Advisory Committee</span>Inaugural meeting, 43 members, chaired by FIA's Walt Lukken. More than half the seats go to crypto-native firms. No consumer-advocacy representation.</li>
+          <li><span class="d">Agenda split</span>50 minutes crypto, 35 minutes AI, 50 minutes prediction markets — prediction markets drew the most heat.</li>
+          <li><span class="d">Track record behind it</span>The 12-month Crypto Sprint targeting listed spot crypto on registered futures exchanges; a cash-settled bitcoin perpetual futures approval in May 2026; and staff no-action relief for payment stablecoins and digital commodities posted as margin collateral.</li>
+          <li><span class="d">DeFi opening</span>Selig directed staff to work with on-chain protocol developers on how they could legally offer their technology in the US — the developer-liability question, finally being engaged.</li>
+        </ul>
+      </article>
+
+      <article class="tcard">
+        <div class="who">Treasury &amp; banking agencies · 17 Aug</div>
+        <h3>Stablecoins as payment infrastructure</h3>
+        <ul>
+          <li><span class="d">Treasury NPRM</span>Defines what it means to "issue a payment stablecoin in the United States" and what counts as offering or selling to a person in the US — the two definitions that decide who needs a GENIUS license.</li>
+          <li><span class="d">The dates that matter</span><b>18 January 2027</b>: licensing requirement bites. <b>18 July 2028</b>: digital asset service providers may not offer any payment stablecoin not issued by a licensed issuer.</li>
+          <li><span class="d">OCC bulletins</span>2026-3 carries the 376-page implementing NPRM; 2026-24 proposes the weekly and quarterly reporting forms issuers will have to file. Those forms are a staffing signal — someone has to produce them.</li>
+          <li><span class="d">Still open</span>Reserve-asset interpretation, anti-yield enforcement, and diversification standards remain the contested clarifications.</li>
+        </ul>
+      </article>
+    </div>
+
+    <div class="bene">
+      <h3>Biggest beneficiaries</h3>
+      <p>The August package sorts assets along one line: commodity or security. Everything downstream — which venue can list it, which regulator writes the rulebook, whether an exemption is even available — follows from that split.</p>
+
+      <div class="tiers2" style="margin-bottom:26px">
+        <div class="btier">
+          <div class="lab">Digital commodities · CFTC</div>
+          <p>Named in the March 2026 joint SEC&ndash;CFTC interpretation. Value derives from the operation of a functional system rather than from anyone's managerial efforts. <b>These assets are explicitly excluded from the new exemptions</b> &mdash; "covered investment contracts" carves them out, because they don't need a securities pathway. Their gain is durability, not access. Spot trading sits with the CFTC under CLARITY, and with the CFTC's own rulemaking if CLARITY dies.</p>
+        </div>
+        <div class="btier">
+          <div class="lab">Securities &amp; investment contracts · SEC</div>
+          <p>Tokens still tied to promised managerial effort. These are what Reg Crypto was built for: a $5M startup exemption, a $75M annual fundraising exemption, and a safe harbor that ends investment-contract treatment once the issuer certifies the promised work is complete or permanently abandoned. The real prize is the exit &mdash; a filing date instead of a court ruling.</p>
+        </div>
+      </div>
+
+      <div class="hl">
+        <div class="hl-head">
+          <div>
+            <span class="lab">The asset the split actually moved</span>
+            <h4>HYPE &mdash; and the onshoring of perpetual futures</h4>
+          </div>
+        </div>
+
+        <p class="hl-lead">At the 19 August summit Trump said CFTC Chair Michael Selig is working to bring Hyperliquid into the United States <b>"in a fully compliant and legal fashion."</b> It is one of the first times a sitting president has named a specific decentralized exchange in a policy context. HYPE ran about 19% to roughly $69.56 on the day. Hyperliquid Strategies, the Nasdaq-listed treasury vehicle, closed up 30.4% &mdash; its largest single-day gain on record. CME closed down 1.7% and Cboe down 3.5%, which tells you who the market thinks pays for this. <b>The move kept going:</b> HYPE set an all-time high near $86.60 on 27 August and trades around $83 as of 30 August &mdash; roughly 43% above where it sat before Trump spoke, on a statement that carries no order, no rule and no timetable.</p>
+
+        <div class="hl-grid">
+          <div class="hl-col">
+            <div class="lab">Why perps are the fight</div>
+            <p>Perpetual futures &mdash; no expiry, a funding rate that tethers price to spot &mdash; are the derivative crypto invented and the one Hyperliquid made the venue for. They were built offshore precisely because no US rulebook accommodated them.</p>
+            <p>The classification question is live and litigated. Selig cleared the first true bitcoin perpetual on a CFTC-registered exchange on 29 May 2026 and framed it jurisdictionally: the question was never whether these contracts would exist, only whether they would exist under American oversight. <b>CME sued the CFTC and Selig on 18 June</b> over the Kalshi approval, arguing Dodd-Frank makes funding-rate contracts swaps rather than futures. That case is pending, and it decides which rulebook perps live under.</p>
+            <p>Meanwhile CME and ICE went to regulators on 15 May over Hyperliquid's 24/7 on-chain oil perps &mdash; then the CFTC stayed CME's own self-certified 24/7 crude contract, with Selig calling the move "wholly inappropriate."</p>
+          </div>
+
+          <div class="hl-col">
+            <div class="lab">What onshoring would require</div>
+            <p>Hyperliquid geoblocks US and Ontario users and <b>has never taken a US retail order</b>. It still cleared roughly $177.9B in perpetuals volume over 30 days with about $11.7B of open interest &mdash; call it 9% of global perp positioning and 60&ndash;80% of the on-chain share.</p>
+            <p>Selig told the Innovation Advisory Committee he has directed staff to explore designating both current registrants and non-registrant crypto exchanges as a new category of designated contract market &mdash; a "crypto asset market." That is the mechanism. CFTC rules were written around centralized intermediaries: a registered exchange, a clearinghouse, an FCM. Hyperliquid is a non-custodial protocol with no intermediary to register.</p>
+            <p><b>Nothing has been approved.</b> No order, no rule, no US entity, no KYC design, no product list. A presidential sentence is a legitimacy catalyst, not a licence.</p>
+          </div>
+        </div>
+
+        <div class="thesis">
+          <div class="lab">Investment thesis &mdash; the Hyperliquid ecosystem</div>
+          <div class="thesis-grid">
+            <div>
+              <div class="th-lab bull">The case for</div>
+              <p><b>A TAM unlock with no incremental build.</b> The largest perp venue in crypto reached that scale while structurally excluding the deepest retail derivatives market in the world. Onshoring is pure addressable-market expansion rather than a product bet.</p>
+              <p><b>Value accrual is mechanical.</b> Roughly 97&ndash;99% of trading fees route to the Assistance Fund, which buys HYPE on the open market and retires it &mdash; about 44.5M tokens removed so far. The buyback is a fixed share of earnings, so incremental US volume flows to the token by construction rather than by governance decision.</p>
+              <p><b>The ecosystem is broadening past the order book.</b> HyperEVM carries roughly $1.5B TVL across 243 protocols; HIP-3 opened builder-deployed perp markets; HIP-4 added event contracts. Each is a second claim on the same infrastructure.</p>
+              <p><b>Regulatory legitimacy is the scarce input.</b> Incumbents spent the spring trying to constrain the venue and got a presidential endorsement of it instead.</p>
+            </div>
+            <div>
+              <div class="th-lab bear">The case against</div>
+              <p><b>The buyback is shrinking, not growing.</b> Gross protocol revenue peaked near $357M in Q3 2025 and has fallen every quarter since &mdash; roughly $202M in Q2 2026, down about 43%. Assistance Fund purchases fell from about $290M to about $149M over the same span. The flywheel runs in reverse just as well.</p>
+              <p><b>The mix shift dilutes the take rate.</b> HIP-3 builder-deployed markets, dominated by Trade.xyz's RWA perps, now drive roughly half of volume at a smaller protocol cut and with concentrated operational risk. Volume growth and revenue growth have decoupled.</p>
+              <p><b>Valuation prices the unlock already.</b> Circulating supply near 222M against roughly 955M total; at $83 that is a market cap around $18B and an FDV near $77B &mdash; against gross revenue that has fallen four straight quarters. The token made an all-time high in the eleven days after the announcement while the business shrank. That is a repricing of a sentence, not of a filing.</p>
+              <p><b>Onshoring may cost what makes it work.</b> A registered entity, KYC, position limits and surveillance obligations could fragment the protocol into a compliant US venue and a permissionless one &mdash; and the compliant half competes with CME, ICE and Coinbase on their own rulebook.</p>
+            </div>
+          </div>
+          <p class="watch"><b>What to watch:</b> the CME suit on swaps-versus-futures classification, which sets the rulebook; whether the CFTC's "crypto asset market" designation reaches proposed-rule status; and whether Assistance Fund purchases inflect before any US access exists. The first two are regulatory; the third tells you whether the business is compounding or eroding underneath the story.</p>
+        </div>
+      </div>
+
+      <div class="caution"><b>Two things to hold onto.</b> Markets barely moved on the SEC's proposal itself &mdash; XRP near $1 on the day &mdash; which says the classification question was already priced; the perp-venue headline was where the money actually moved, and kept moving. And none of this is law. Reg Crypto is a proposal in a comment window, the March interpretation is guidance a future Commission can withdraw, and the CFTC's crypto asset market regime does not yet exist. Agency action is faster than legislation and less permanent. That asymmetry is the whole story of 2026.</div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="controls">
+    <div>
+      <span class="eyebrow ctrl-label">Filter by hiring status</span>
+      <div class="chips" id="fStatus"></div>
+    </div>
+    <div>
+      <span class="eyebrow ctrl-label">Filter by stack layer</span>
+      <div class="chips" id="fLayer"></div>
+    </div>
+    <div class="readout"><b id="count">12</b> of 12 segments</div>
+  </div>
+
+  <div class="seg-head">
+    <span class="eyebrow">The map</span>
+    <h2>Segments</h2>
+    <p>Each card carries the firms, the current read, and the entry-level titles actually being filled. Open the roles list to see what the work is.</p>
+  </div>
+</div>
+
+<div class="wrap"><div class="grid" id="grid"></div></div>
+
+<section class="tiers">
+  <div class="wrap">
+    <div class="tiers-head">
+      <span class="eyebrow">Entry points</span>
+      <h2>The role ladder</h2>
+      <p>Sorted by how gettable each tier is from outside the industry. The bar shows relative accessibility, not seniority — Tier 1 roles are not lesser jobs, they are the ones with non-discretionary headcount behind them.</p>
+    </div>
+    <div id="tiers"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Compiled 11 August 2026; revised 30 August 2026. Roadmap dates are as disclosed by the institutions or reported in trade press; projected items are estimates and move often. Verify anything load-bearing before you cite it in an interview.</p>
+    <p>Status definitions — <b style="color:var(--shipping)">Shipping</b>: live services or completed transactions in the last two quarters. <b style="color:var(--building)">Building</b>: dated roadmap, staffing ahead of launch. <b style="color:var(--gated)">Gated</b>: roadmap dependent on market-structure legislation. <b style="color:var(--demand)">Demand side</b>: allocators rather than builders.</p>
+  </div>
+</footer>
+
+<script>
+const START = 2025*12;      // Jan 2025
+const SPAN  = 35;           // through Dec 2027
+const pos = (y,m,d) => ((y*12+m) + ((d||1)-1)/30 - START) / SPAN * 100;
+
+const EVENTS = [
+  {y:2025,m:0, kind:"rule",      t:"SAB 121 rescinded — bank custody becomes economic"},
+  {y:2025,m:6, kind:"statute",   t:"GENIUS Act signed; CLARITY passes House 294–134"},
+  {y:2025,m:8, kind:"rule",      t:"Generic ETP listing standards — approval window 240d → 75d"},
+  {y:2025,m:11,kind:"rule",      t:"SEC no-action letter: DTC three-year pilot exemption"},
+  {y:2025,m:11,kind:"launch",    t:"OCC trust charters — Circle, Paxos + three nonbanks"},
+  {y:2026,m:0, kind:"statute",   t:"Senate Agriculture advances its CLARITY version"},
+  {y:2026,m:1, kind:"rule",      t:"OCC GENIUS NPRM — 376 pages, 200+ questions"},
+  {y:2026,m:2, kind:"rule",      t:"Joint SEC–CFTC classification of 16 assets (guidance, not statute)"},
+  {y:2026,m:3, kind:"rule",      t:"FDIC NPRM — reserves, deposit insurance, tokenized deposits"},
+  {y:2026,m:4, kind:"statute",   t:"Senate Banking advances CLARITY 15–9"},
+  {y:2026,m:4, kind:"launch",    t:"DTCC to integrate DTC tokenization with Stellar"},
+  {y:2026,m:6, kind:"launch",    t:"DTCC limited production trades begin; BNY Digital Transfer Agency"},
+  {y:2026,m:7, kind:"launch",    t:"BNY adds staking via Galaxy; Wells Fargo commits to tokenized deposits"},
+  {y:2026,m:7, d:8,  kind:"statute",   t:"Cloture filed on motion to proceed — CLARITY alive but unscheduled"},
+  {y:2026,m:7, d:17, kind:"rule",      t:"Treasury GENIUS NPRM — stablecoins framed as payment infrastructure"},
+  {y:2026,m:7, d:18, kind:"rule",      t:"SEC proposes Regulation Crypto Assets — 401 pages, advanced by written vote"},
+  {y:2026,m:7, d:19, kind:"launch",    t:"White House crypto summit — tokenization, market structure, prediction markets"},
+  {y:2026,m:7, d:20, kind:"launch",    t:"CFTC Innovation Advisory Committee convenes; Selig orders backup market-structure rules"},
+  {y:2026,m:8, d:15, kind:"projected", t:"Senate returns Sep 14; CLARITY procedural vote set for Sep 15"},
+  {y:2026,m:9, d:1,  kind:"projected", t:"DTCC tokenization broader launch"},
+  {y:2026,m:9, d:20, kind:"projected", t:"Reg Crypto comment period closes"},
+  {y:2027,m:0, d:18, kind:"projected", t:"GENIUS Act effective date"},
+  {y:2027,m:2, kind:"projected", t:"DTCC Stellar go-live"},
+  {y:2027,m:5, kind:"projected", t:"Bank tokenized deposit network — The Clearing House"}
+];
+
+const SEGMENTS = [
+  {n:"2.1", name:"Universal banks / GSIBs", layer:"Money layer", status:"building",
+   firms:"JPMorgan · Citi · Bank of America · Wells Fargo · Goldman Sachs · Morgan Stanley · HSBC · UBS · Standard Chartered",
+   take:"Production is real but it lives in <b>payments and settlement</b>, not crypto trading. The shared tokenized deposit network targets H1 2027. Morgan Stanley is the outlier that went retail — live BTC/ETH/SOL on E*TRADE plus its own spot ETF.",
+   marks:[[2026,7],[2027,5]],
+   roles:[
+     ["Digital Asset Product Analyst","Requirements, competitor teardowns, launch readiness for a deposit token or depositary receipt product."],
+     ["Payments / Treasury Services Analyst","Corporate client flows, settlement exceptions, pilot-client onboarding."],
+     ["Financial Crime Analyst","Chain analytics tooling, alert dispositioning. Highest-volume entry point in the industry."],
+     ["Regulatory Change Analyst","Tracking GENIUS, CLARITY and Basel disclosure implementation across jurisdictions."],
+     ["Risk Analyst — Digital Assets","Counterparty, operational and concentration risk on new exposures."]
+   ]},
+
+  {n:"2.2", name:"Custody &amp; asset servicing", layer:"Infrastructure layer", status:"shipping",
+   firms:"BNY · State Street · Northern Trust · Citi Securities Services · JPMorgan Securities Services",
+   take:"<b>The clearest, best-funded roadmap in institutional finance.</b> BNY shipped custody, then USDC, then Digital Transfer Agency, then staking — four quarters running. Digital TA is a function where almost nobody has three years of experience.",
+   marks:[[2026,6],[2026,7]],
+   roles:[
+     ["Digital Asset Custody Operations Analyst","Wallet ops, key ceremony support, transaction authorization workflows."],
+     ["Transfer Agency Analyst — Digital Funds","Brand new. Shareholder recordkeeping where the register is a blockchain. Low incumbent advantage."],
+     ["Fund Accounting / NAV Analyst","Pricing sources, valuation policy, cutoff problems for assets that trade 24/7."],
+     ["Client Onboarding / Implementation Analyst","Institutional KYC, network connectivity, documentation."],
+     ["Reconciliation / Data Analyst","On-chain position against golden-source record. Python and SQL genuinely valued."]
+   ]},
+
+  {n:"2.3", name:"Asset managers &amp; ETP issuers", layer:"Asset layer", status:"shipping",
+   firms:"BlackRock · Fidelity · Franklin Templeton · Invesco · VanEck · Bitwise · Grayscale · 21Shares · T. Rowe Price",
+   take:"Access is solved; spot BTC ETF assets fell from ~$147B to ~$73B by mid-2026. The energy moved to yield, active management and tokenized funds. <b>Watch tokenized MMFs becoming eligible margin collateral</b> — that is the highest-leverage unlock in the segment.",
+   marks:[[2026,4]],
+   roles:[
+     ["ETF Capital Markets Analyst","AP relationships, creation/redemption, spread and liquidity monitoring. Closest read-across from markets coverage."],
+     ["Product Analyst / Development Associate","Filings support, competitive analysis, launch project management."],
+     ["Digital Assets Investment Analyst","Fundamental plus on-chain research. Posted at Fidelity, T. Rowe and peers."],
+     ["Investment Operations Associate","Sits between front office, fund admins, trading counterparties and engineers."],
+     ["Client Portfolio / Product Specialist","The sales-adjacent seat — explaining the product to allocators."]
+   ]},
+
+  {n:"2.4", name:"Wealth management &amp; wirehouses", layer:"Distribution", status:"building",
+   firms:"Morgan Stanley WM · Merrill · UBS · Wells Fargo Advisors · Vanguard · Schwab · LPL",
+   take:"The gate is open; the constraint is advisor behaviour. Morgan Stanley recommends 2–4% across ~16,000 advisors. But <b>62% of advisors still believe recommending crypto conflicts with best-interest duty</b>, so headcount follows flows, not announcements.",
+   marks:[],
+   roles:[
+     ["CIO Office / Investment Solutions Analyst","Due diligence on crypto ETPs, allocation guidance papers, model portfolios."],
+     ["Platform Due Diligence Analyst","Getting products approved onto the platform — an arduous gatekeeping function."],
+     ["Advisor Enablement Associate","Building the required training and talking points. Underrated, highly visible internally."],
+     ["Alternatives Product Analyst","Crypto sits inside the alts bucket at most of these firms."]
+   ]},
+
+  {n:"2.5", name:"Hedge funds", layer:"Asset layer", status:"shipping",
+   firms:"Brevan Howard Digital · Pantera Capital · Feynman Point Asset Management",
+   take:"Funds whose entire mandate is digital assets, not multistrats running a sleeve. Brevan Howard and Pantera have raised billions; <b>Feynman Point spun out of Republic in late 2025 with $300M</b> under ex-GoldenTree credit PM Joe Naggar, reporting 42%+ annualised since 2022 on positions including discounted GBTC, Ripple equity and early Hyperliquid. The edge is institutional risk discipline applied to crypto-native strategy — and the growth area is institutional DeFi, where someone has to underwrite protocol risk rather than avoid it.",
+   marks:[],
+   roles:[
+     ["Research Analyst (fundamental / on-chain)","Dune, Nansen, Flipside, protocol financials, tokenomics. Most accessible non-engineering seat and the one these funds actually hire for."],
+     ["Quantitative Researcher","Signal research, funding-rate and basis modelling, perp microstructure across venues."],
+     ["Trade Support / Execution Analyst","Multi-venue reconciliation, collateral movement, 24/7 coverage rotations."],
+     ["Treasury / Collateral Analyst","Exchange counterparty exposure — a real staffed function post-FTX."],
+     ["Investor Relations Analyst","Allocator-facing. Natural bridge from institutional sales, and small teams mean it is reachable."]
+   ]},
+
+  {n:"2.6", name:"Market infrastructure &amp; clearing", layer:"Infrastructure layer", status:"shipping",
+   firms:"DTCC · CME · ICE/NYSE · Nasdaq · Cboe · The Clearing House · Euroclear · LSEG",
+   take:"Structurally the most important segment and the least discussed by candidates. DTCC is tokenizing against a <b>$114 trillion</b> custody base on a three-year pilot exemption. The open question is interoperability — whether DTC tokens can reach where the liquidity already is.",
+   marks:[[2026,4],[2026,6],[2026,9],[2027,2]],
+   roles:[
+     ["Product Analyst — Tokenization","Participant onboarding, test-cycle coordination, spec documentation."],
+     ["Clearing &amp; Settlement Operations Analyst","The delivery-versus-payment problem, on chain, in practice."],
+     ["Market Structure Analyst","Rulebook and entitlement mapping. A genuinely intellectual entry seat."],
+     ["Business Analyst (Tokenization / Stablecoin)","This literal title is now appearing in postings."],
+     ["Participant Relations Analyst","Client-facing coverage of member firms."]
+   ]},
+
+  {n:"2.7", name:"Crypto-native institutional", layer:"Infrastructure layer", status:"shipping",
+   firms:"Coinbase Institutional · Galaxy · Fidelity Digital Assets · Kraken · Anchorage · BitGo · Fireblocks · Copper · FalconX · Talos · Zodia",
+   take:"These are the counterparties the TradFi roadmaps are built on — Galaxy is inside both BNY's staking build and State Street's ETFs. <b>Highest-volume segment for lateral entry</b>, and they sponsor registrations. Also the most cyclical: Galaxy posted a $482M quarterly loss.",
+   marks:[[2026,7]],
+   roles:[
+     ["Institutional Sales Analyst / BDR","Prospecting and qualifying hedge funds, asset managers, family offices."],
+     ["Sales Trader / Execution Analyst","RFQ handling, pricing support, client execution. Series 7 + 57 territory."],
+     ["Client Onboarding / KYC Analyst","Highest-volume single entry role at these firms."],
+     ["Research Analyst","Publishing institutional-grade research to real analytical standards."],
+     ["Solutions / Sales Engineer (junior)","Technical pre-sales — the seat for someone with both markets and Python."],
+     ["Compliance / AML Analyst","Constant demand, minimal barrier, easy internal mobility afterward."]
+   ]},
+
+  {n:"2.8", name:"Stablecoin issuers &amp; payments", layer:"Money layer", status:"building",
+   firms:"Circle · Paxos · Tether · Visa · Mastercard · PayPal · Stripe/Bridge · Fiserv",
+   take:"Roughly <b>$305B of a $2.28T market</b>. GENIUS licensing is forcing real staffing across reserve, reporting and compliance. Yield to holders is prohibited, so distribution economics — not rates — is the competitive battleground.",
+   marks:[[2026,1],[2026,3]],
+   roles:[
+     ["Treasury / Reserve Operations Analyst","T-bill and repo management under a 93-day maturity constraint. Real fixed income work."],
+     ["Regulatory Reporting Analyst","Weekly and quarterly issuer reporting. Statutorily mandated, will be staffed."],
+     ["Compliance / Sanctions Analyst","BSA and sanctions standards for issuers are their own rulemaking."],
+     ["Partnerships / BD Analyst","Distribution deals with banks, custodians and fintechs."],
+     ["Product Analyst — Payments","Corridor economics, merchant and corporate treasury use cases."]
+   ]},
+
+  {n:"2.9", name:"Tokenization platforms &amp; RWA", layer:"Asset layer", status:"building",
+   firms:"Securitize · Ondo · Superstate · Figure · Provenance · Archax · Ownera · Apex Group · Taurus",
+   take:"The picks-and-shovels layer the asset managers plug into. <b>Secondary liquidity remains unsolved</b> — tokenized funds are issued easily and traded rarely. Small teams, wide remits, faster progression, more career risk.",
+   marks:[],
+   roles:[
+     ["Transfer Agency Analyst","Register maintenance where the register is on-chain."],
+     ["Issuance Operations Analyst","Running the mechanics of getting a fund on chain."],
+     ["Investor Onboarding Associate","Subscription, suitability and documentation flow."],
+     ["Business Development Analyst","Selling rails to issuers and distributors."]
+   ]},
+
+  {n:"2.10", name:"Private markets &amp; alternatives", layer:"Asset layer", status:"building",
+   firms:"Apollo · KKR · Blackstone · Hamilton Lane · Ares · Carlyle",
+   take:"Using tokenization as a <b>distribution technology, not a crypto strategy</b> — feeders that lower minimums and widen access to wealth channels. Frame these as alts-distribution jobs with a tokenization component, because that is what they are.",
+   marks:[],
+   roles:[
+     ["Product Analyst — Tokenized Feeders","Structuring and launching the wrapper."],
+     ["Investor Relations Analyst — Wealth Channel","Supporting the push into advisor distribution."],
+     ["Fund Operations Analyst","Subscriptions, capital calls, register reconciliation."],
+     ["Distribution Strategy Analyst","Channel economics and platform coverage."]
+   ]},
+
+  {n:"2.11", name:"Asset owners &amp; allocators", layer:"Demand side", status:"demand",
+   firms:"Pensions · Endowments · Insurers · Family offices · Sovereign wealth funds",
+   take:"The demand side. <b>73% plan to increase allocations in 2026</b>, with attention shifted from access to application. Hiring is thin and generalist — but family offices hire through network rather than postings, and they want people who cover both traditional and digital.",
+   marks:[],
+   roles:[
+     ["Investment Analyst","Generalist seat with a digital asset sleeve."],
+     ["Manager Research Analyst","Screening and monitoring external crypto managers."],
+     ["Operational Due Diligence Analyst","Assessing whether a manager's custody and key management are institutionally acceptable. This is where digital asset knowledge is a genuine differentiator."]
+   ]},
+
+  {n:"2.12", name:"Advisers, audit &amp; data", layer:"Demand side", status:"shipping",
+   firms:"EY · Deloitte · PwC · KPMG · Accenture · Chainalysis · TRM Labs · Kaiko · Coin Metrics · MSCI · S&amp;P",
+   take:"Basel crypto-exposure disclosures rolling into 2026 are forcing standardized capital, liquidity and concentration data pipelines across every bank. <b>The classic route to seeing twelve institutions in two years</b> if you cannot get in-house directly.",
+   marks:[],
+   roles:[
+     ["Consultant / Business Analyst","Digital asset strategy and implementation engagements."],
+     ["Blockchain Analytics Analyst","Investigations, tracing, typology work."],
+     ["Index / Data Analyst","Methodology, constituent screening, pricing sources."],
+     ["Regulatory Reporting Analyst","Building the disclosure pipelines the new rules require."]
+   ]}
+];
+
+const TIERS = [
+  {n:"01", w:100, h:"Highest volume, lowest barrier",
+   roles:"Financial Crime / AML Analyst · Client Onboarding &amp; KYC Analyst · Trade Support &amp; Operations Analyst",
+   p:"Regulatory mandate creates non-discretionary headcount, and firms train on the job. The fastest way in, and the easiest place to move internally from afterwards.",
+   need:"Attention to detail, tolerance for process work, basic chain literacy"},
+  {n:"02", w:78, h:"Real analytical content, no incumbent pool",
+   roles:"Digital Asset Ops · Fund Accounting &amp; NAV · Transfer Agency (digital) · Reconciliation &amp; Data · Collateral Ops",
+   p:"These functions did not exist three years ago, so nobody has three years of experience in them. A smart lateral competes on equal footing.",
+   need:"Excel, SQL, Python; markets fundamentals; ability to reason about settlement"},
+  {n:"03", w:56, h:"Competitive, reachable with a markets background",
+   roles:"Sales Analyst / BDR · Sales Trader · Client Portfolio Analyst · ETF Capital Markets · Advisor Enablement",
+   p:"Direct read-across from institutional coverage. Active registrations are a real asset here, and crypto-native firms sponsor.",
+   need:"Series 7 + 63/66 (7 + 57 for trading), client-facing polish, product fluency"},
+  {n:"04", w:30, h:"Hard without a track record",
+   roles:"Research Analyst · Quantitative Researcher · Investment Analyst · Product Manager",
+   p:"Small teams with a high signal requirement. Published work substitutes for experience more than in any other tier — a portfolio of models beats a résumé line.",
+   need:"Demonstrable on-chain research, models you can show, writing samples"},
+  {n:"05", w:18, h:"Engineering",
+   roles:"Blockchain Integration · Custody Infrastructure · Smart Contract · Data Engineering",
+   p:"Genuine scarcity, and the one tier where credentials matter least and output matters most.",
+   need:"Actual shipped code"}
+];
+
+/* ---------- render the clock ---------- */
+const years = document.getElementById('years');
+[2025,2026,2027].forEach(y=>{
+  const d=document.createElement('div');
+  d.className='yearmark';
+  d.style.left = pos(y,0)+'%';
+  d.innerHTML = '<span>'+y+'</span>';
+  years.appendChild(d);
+});
+
+const ticksEl = document.getElementById('ticks');
+const ledgerEl = document.getElementById('ledger');
+const MONTHS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+EVENTS.forEach((e,i)=>{
+  const b=document.createElement('button');
+  b.className='tick';
+  b.dataset.kind=e.kind;
+  b.dataset.i=i;
+  b.style.left=pos(e.y,e.m,e.d)+'%';
+  b.setAttribute('aria-label', MONTHS[e.m]+' '+e.y+' — '+e.t.replace(/<[^>]+>/g,''));
+  ticksEl.appendChild(b);
+
+  const r=document.createElement('button');
+  r.className='row';
+  r.dataset.kind=e.kind;
+  r.dataset.i=i;
+  r.setAttribute('role','listitem');
+  r.innerHTML='<span class="d">'+MONTHS[e.m]+' '+String(e.y).slice(2)+'</span>'+
+              '<span class="k">'+e.kind+'</span>'+
+              '<span class="t">'+e.t+'</span>';
+  ledgerEl.appendChild(r);
+});
+
+function focusEvent(i){
+  document.querySelectorAll('.tick').forEach(t=>t.classList.toggle('on', +t.dataset.i===i));
+  document.querySelectorAll('.row').forEach(r=>{
+    const on = +r.dataset.i===i;
+    r.classList.toggle('on', on);
+    if(on) r.scrollIntoView({block:'nearest'});
+  });
+}
+ticksEl.addEventListener('click',e=>{ if(e.target.dataset.i) focusEvent(+e.target.dataset.i) });
+ticksEl.addEventListener('mouseover',e=>{ if(e.target.dataset.i) focusEvent(+e.target.dataset.i) });
+ledgerEl.addEventListener('click',e=>{
+  const r=e.target.closest('.row'); if(r) focusEvent(+r.dataset.i);
+});
+ledgerEl.addEventListener('mouseover',e=>{
+  const r=e.target.closest('.row'); if(r) focusEvent(+r.dataset.i);
+});
+
+/* ---------- highlight a segment's milestones ---------- */
+let selected=null;
+function plot(seg){
+  const keys = seg ? seg.marks.map(m=>pos(m[0],m[1],m[2]).toFixed(3)) : null;
+  document.querySelectorAll('.tick').forEach(t=>{
+    if(!keys || keys.length===0){ t.classList.remove('dim'); return }
+    const p = parseFloat(t.style.left).toFixed(3);
+    t.classList.toggle('dim', !keys.includes(p));
+  });
+}
+
+/* ---------- render segments ---------- */
+const grid=document.getElementById('grid');
+const STATUS_LABEL={shipping:"Shipping",building:"Building",gated:"Gated",demand:"Demand side"};
+
+SEGMENTS.forEach((s,i)=>{
+  const c=document.createElement('article');
+  c.className='card';
+  c.dataset.status=s.status;
+  c.dataset.layer=s.layer;
+  c.tabIndex=0;
+  c.innerHTML=
+    '<div class="card-top"><span class="idx">'+s.n+'</span>'+
+    '<span class="status '+s.status+'">'+STATUS_LABEL[s.status]+'</span></div>'+
+    '<h3>'+s.name+'</h3>'+
+    '<div class="layer">'+s.layer+'</div>'+
+    '<p class="firms">'+s.firms+'</p>'+
+    '<p class="take">'+s.take+'</p>'+
+    '<button class="roles-btn" aria-expanded="false" aria-controls="r'+i+'">'+
+      '<span>'+s.roles.length+' entry-level roles</span><span class="car">›</span></button>'+
+    '<ul class="roles" id="r'+i+'">'+
+      s.roles.map(r=>'<li><span class="rn">'+r[0]+'</span><span class="rd">'+r[1]+'</span></li>').join('')+
+    '</ul>';
+
+  c.querySelector('.roles-btn').addEventListener('click',ev=>{
+    ev.stopPropagation();
+    const btn=ev.currentTarget;
+    const open = btn.getAttribute('aria-expanded')==='true';
+    btn.setAttribute('aria-expanded', String(!open));
+    c.querySelector('.roles').classList.toggle('open', !open);
+  });
+
+  const select=()=>{
+    const same = selected===c;
+    document.querySelectorAll('.card').forEach(x=>x.classList.remove('sel'));
+    if(same){ selected=null; plot(null) }
+    else { c.classList.add('sel'); selected=c; plot(s);
+           document.querySelector('.clock').scrollIntoView({behavior:'smooth',block:'start'}) }
+  };
+  c.addEventListener('click',select);
+  c.addEventListener('keydown',ev=>{ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); select() } });
+
+  grid.appendChild(c);
+});
+
+/* ---------- filters ---------- */
+const layers=[...new Set(SEGMENTS.map(s=>s.layer))];
+const statuses=["shipping","building","gated","demand"];
+let fs="all", fl="all";
+
+function chipSet(host, items, labelFn, onPick){
+  const all=document.createElement('button');
+  all.className='chip'; all.textContent='All'; all.setAttribute('aria-pressed','true');
+  host.appendChild(all);
+  items.forEach(v=>{
+    const b=document.createElement('button');
+    b.className='chip'; b.textContent=labelFn(v); b.setAttribute('aria-pressed','false');
+    b.addEventListener('click',()=>{
+      [...host.children].forEach(x=>x.setAttribute('aria-pressed','false'));
+      b.setAttribute('aria-pressed','true'); onPick(v); apply();
+    });
+    host.appendChild(b);
+  });
+  all.addEventListener('click',()=>{
+    [...host.children].forEach(x=>x.setAttribute('aria-pressed','false'));
+    all.setAttribute('aria-pressed','true'); onPick('all'); apply();
+  });
+}
+chipSet(document.getElementById('fStatus'), statuses, v=>STATUS_LABEL[v], v=>fs=v);
+chipSet(document.getElementById('fLayer'), layers, v=>v.replace(' layer',''), v=>fl=v);
+
+function apply(){
+  let n=0;
+  document.querySelectorAll('.card').forEach(c=>{
+    const ok = (fs==='all'||c.dataset.status===fs) && (fl==='all'||c.dataset.layer===fl);
+    c.classList.toggle('hidden',!ok);
+    if(ok) n++;
+  });
+  document.getElementById('count').textContent=n;
+}
+
+/* ---------- tiers ---------- */
+const tiersEl=document.getElementById('tiers');
+TIERS.forEach(t=>{
+  const d=document.createElement('div');
+  d.className='tier';
+  d.innerHTML='<div class="tier-k"><b>'+t.n+'</b>Tier</div>'+
+    '<div><h4>'+t.h+'</h4>'+
+    '<div class="bar"><i style="width:'+t.w+'%"></i></div>'+
+    '<p>'+t.roles+'</p><p>'+t.p+'</p>'+
+    '<div class="need"><b>Needs — </b>'+t.need+'</div></div>';
+  tiersEl.appendChild(d);
+});
+</script>
+</body>
+</html>
