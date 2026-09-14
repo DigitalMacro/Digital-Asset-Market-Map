@@ -67,6 +67,18 @@
   .deck{max-width:60ch;color:#B4C6D4;font-size:16.5px;margin:0}
   .deck strong{color:var(--paper);font-weight:600}
 
+
+  .live{border:1px solid var(--gated);border-left:3px solid var(--gated);background:rgba(200,104,124,.07);padding:20px 22px;margin:30px 0 0;border-radius:2px}
+  .live .tag{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gated);margin-bottom:10px;display:block}
+  .live h3{font-size:19px;font-weight:640;letter-spacing:-.018em;margin:0 0 10px}
+  .live p{margin:0 0 10px;font-size:14px;color:#C0D0DC;line-height:1.55;max-width:88ch}
+  .live p:last-child{margin-bottom:0}
+  .live b{color:var(--paper);font-weight:600}
+  .odds{display:flex;gap:26px;flex-wrap:wrap;margin:14px 0 12px;padding:13px 0;border-top:1px solid var(--rule-soft);border-bottom:1px solid var(--rule-soft)}
+  .odds div{font-family:var(--mono)}
+  .odds .n{display:block;font-size:19px;color:var(--paper);letter-spacing:-.02em}
+  .odds .k{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+
   /* ---------- settlement clock ---------- */
   .clock{padding:40px 0 10px;border-bottom:1px solid var(--rule)}
   .clock-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:26px}
@@ -74,7 +86,7 @@
 
   .rail-frame{position:relative;padding:52px 0 30px}
   .rail{position:relative;height:2px;background:var(--rule);border-radius:2px}
-  .rail-fill{position:absolute;left:0;top:0;bottom:0;background:var(--rail);width:57.1%}
+  .rail-fill{position:absolute;left:0;top:0;bottom:0;background:var(--rail);width:58.4%}
 
   .yearmark{position:absolute;top:-46px;bottom:-24px;width:1px;background:var(--rule-soft)}
   .yearmark span{
@@ -95,9 +107,9 @@
   .tick.on{transform:scale(1.75);background:var(--paper)}
   .tick.dim{opacity:.24}
 
-  .now{position:absolute;top:-40px;bottom:-18px;width:1px;background:var(--now);left:57.1%}
+  .now{position:absolute;top:-40px;bottom:-18px;width:1px;background:var(--now);left:58.4%}
   .now::after{
-    content:"NOW · 30 AUG 26";
+    content:"NOW · 14 SEP 26";
     position:absolute;top:-16px;left:50%;transform:translateX(-50%);
     font-family:var(--mono);font-size:10px;letter-spacing:.13em;
     color:var(--ink);background:var(--now);padding:3px 7px;border-radius:2px;white-space:nowrap;
@@ -279,7 +291,7 @@
   <div class="wrap">
     <div class="masthead-top">
       <span class="eyebrow">Institutional digital assets — adoption &amp; hiring map</span>
-      <span class="eyebrow num">Rev. 30 Aug 2026</span>
+      <span class="eyebrow num">Rev. 14 Sep 2026</span>
     </div>
     <h1>Digital Asset Regulation <em>&amp;</em> Market Map</h1>
     <p class="deck">Twelve segments of institutional finance, sorted by what has shipped rather than what has been announced.</p>
@@ -300,6 +312,20 @@
         <span><i class="dot" style="border-color:var(--shipping)"></i>Shipped</span>
         <span><i class="dot" style="border-color:var(--mute);border-style:dotted"></i>Projected</span>
       </div>
+    </div>
+
+    <div class="live">
+      <span class="tag">Live &middot; tomorrow</span>
+      <h3>CLARITY cloture vote &mdash; 15 September, 2:15pm ET</h3>
+      <p>The Senate returned today. Tomorrow it votes on the motion to proceed to H.R. 3633, needing <b>60 votes</b>. This is a vote to open debate, not to pass the bill &mdash; but the market treats it as the referendum, and failure likely ends comprehensive market-structure legislation until after the midterms.</p>
+      <div class="odds">
+        <div><span class="n">16%</span><span class="k">Polymarket, 6 Sep</span></div>
+        <div><span class="n">10%</span><span class="k">Galaxy Research</span></div>
+        <div><span class="n">82%</span><span class="k">Polymarket, February</span></div>
+        <div><span class="n">294&ndash;134</span><span class="k">House, Jul 2025</span></div>
+      </div>
+      <p><b>Three unresolved disputes.</b> Ethics provisions aimed at the President's crypto income; DeFi developer liability under Section 604; and a stablecoin yield provision that bears on roughly $1.35B in annual Coinbase USDC rewards revenue. Seven Democratic senators issued a joint statement calling the draft insufficient on ethics, consumer protection and illicit finance &mdash; and the text did not change over recess.</p>
+      <p><b>Why the rest of this page still holds either way.</b> The agency track below was built precisely because this vote was never reliable. If cloture fails, SEC rulemaking and the CFTC's proposed crypto asset market designation become the whole framework rather than a bridge to one.</p>
     </div>
 
     <div class="rail-frame">
@@ -393,7 +419,7 @@
           </div>
         </div>
 
-        <p class="hl-lead">At the 19 August summit Trump said CFTC Chair Michael Selig is working to bring Hyperliquid into the United States <b>"in a fully compliant and legal fashion."</b> It is one of the first times a sitting president has named a specific decentralized exchange in a policy context. HYPE ran about 19% to roughly $69.56 on the day. Hyperliquid Strategies, the Nasdaq-listed treasury vehicle, closed up 30.4% &mdash; its largest single-day gain on record. CME closed down 1.7% and Cboe down 3.5%, which tells you who the market thinks pays for this. <b>The move kept going:</b> HYPE set an all-time high near $86.60 on 27 August and trades around $83 as of 30 August &mdash; roughly 43% above where it sat before Trump spoke, on a statement that carries no order, no rule and no timetable.</p>
+        <p class="hl-lead">At the 19 August summit Trump said CFTC Chair Michael Selig is working to bring Hyperliquid into the United States <b>"in a fully compliant and legal fashion."</b> It is one of the first times a sitting president has named a specific decentralized exchange in a policy context. HYPE ran roughly 19% on the day, from about $58 to $72. Hyperliquid Strategies, the Nasdaq-listed treasury vehicle, closed up 30.4% &mdash; its largest single-day gain on record. CME closed down 1.7% and Cboe down 3.5%, which tells you who the market thinks pays for this. <b>The move has held.</b> HYPE has consolidated around $80 after hitting an all-time high above $89 on 6 September. Coinbase began routing Base App users to Hyperliquid in mid-August, which is a second, quieter distribution catalyst sitting underneath the political one.</p>
 
         <div class="hl-grid">
           <div class="hl-col">
@@ -407,7 +433,7 @@
             <div class="lab">What onshoring would require</div>
             <p>Hyperliquid geoblocks US and Ontario users and <b>has never taken a US retail order</b>. It still cleared roughly $177.9B in perpetuals volume over 30 days with about $11.7B of open interest &mdash; call it 9% of global perp positioning and 60&ndash;80% of the on-chain share.</p>
             <p>Selig told the Innovation Advisory Committee he has directed staff to explore designating both current registrants and non-registrant crypto exchanges as a new category of designated contract market &mdash; a "crypto asset market." That is the mechanism. CFTC rules were written around centralized intermediaries: a registered exchange, a clearinghouse, an FCM. Hyperliquid is a non-custodial protocol with no intermediary to register.</p>
-            <p><b>Nothing has been approved.</b> No order, no rule, no US entity, no KYC design, no product list. A presidential sentence is a legitimacy catalyst, not a licence.</p>
+            <p>The Hyperliquid Policy Center, run by Jake Chervinsky, petitioned the CFTC jointly with Phantom in July to exempt DeFi protocols from legacy exchange rules, and has since pressed both agencies to harmonise their treatment of perpetuals. <b>About 32% of Q2 volume was tied to equities and other real-world assets</b> &mdash; which puts part of the business under SEC jurisdiction and makes this a two-agency problem, not a CFTC one.</p><p><b>Nothing has been approved.</b> No order, no rule, no US entity, no KYC design, no product list. Former SEC counsel Ashley Ebersole puts the approval process at 10&ndash;12 months across both agencies. A presidential sentence is a legitimacy catalyst, not a licence.</p>
           </div>
         </div>
 
@@ -418,18 +444,18 @@
               <div class="th-lab bull">The case for</div>
               <p><b>A TAM unlock with no incremental build.</b> The largest perp venue in crypto reached that scale while structurally excluding the deepest retail derivatives market in the world. Onshoring is pure addressable-market expansion rather than a product bet.</p>
               <p><b>Value accrual is mechanical.</b> Roughly 97&ndash;99% of trading fees route to the Assistance Fund, which buys HYPE on the open market and retires it &mdash; about 44.5M tokens removed so far. The buyback is a fixed share of earnings, so incremental US volume flows to the token by construction rather than by governance decision.</p>
-              <p><b>The ecosystem is broadening past the order book.</b> HyperEVM carries roughly $1.5B TVL across 243 protocols; HIP-3 opened builder-deployed perp markets; HIP-4 added event contracts. Each is a second claim on the same infrastructure.</p>
+              <p><b>Open interest is confirming, not just price.</b> OI back near $14.3B on roughly $4B of daily volume means the move is being expressed in positions rather than only in spot &mdash; and since fees scale with volume, that is the part that actually reaches the buyback.</p><p><b>The ecosystem is broadening past the order book.</b> HyperEVM carries roughly $1.5B TVL across 243 protocols; HIP-3 opened builder-deployed perp markets; HIP-4 added event contracts. Each is a second claim on the same infrastructure.</p>
               <p><b>Regulatory legitimacy is the scarce input.</b> Incumbents spent the spring trying to constrain the venue and got a presidential endorsement of it instead.</p>
             </div>
             <div>
               <div class="th-lab bear">The case against</div>
               <p><b>The buyback is shrinking, not growing.</b> Gross protocol revenue peaked near $357M in Q3 2025 and has fallen every quarter since &mdash; roughly $202M in Q2 2026, down about 43%. Assistance Fund purchases fell from about $290M to about $149M over the same span. The flywheel runs in reverse just as well.</p>
               <p><b>The mix shift dilutes the take rate.</b> HIP-3 builder-deployed markets, dominated by Trade.xyz's RWA perps, now drive roughly half of volume at a smaller protocol cut and with concentrated operational risk. Volume growth and revenue growth have decoupled.</p>
-              <p><b>Valuation prices the unlock already.</b> Circulating supply near 222M against roughly 955M total; at $83 that is a market cap around $18B and an FDV near $77B &mdash; against gross revenue that has fallen four straight quarters. The token made an all-time high in the eleven days after the announcement while the business shrank. That is a repricing of a sentence, not of a filing.</p>
+              <p><b>Valuation prices the unlock already.</b> Circulating supply near 222M against roughly 955M total; at $80 that is a market cap around $18B and an FDV near $76B &mdash; against gross revenue that has fallen four straight quarters. The token made an all-time high within two weeks of the announcement while the business shrank, and prediction markets now price a 67% chance of $100 by year end. That is a repricing of a sentence, not of a filing.</p>
               <p><b>Onshoring may cost what makes it work.</b> A registered entity, KYC, position limits and surveillance obligations could fragment the protocol into a compliant US venue and a permissionless one &mdash; and the compliant half competes with CME, ICE and Coinbase on their own rulebook.</p>
             </div>
           </div>
-          <p class="watch"><b>What to watch:</b> the CME suit on swaps-versus-futures classification, which sets the rulebook; whether the CFTC's "crypto asset market" designation reaches proposed-rule status; and whether Assistance Fund purchases inflect before any US access exists. The first two are regulatory; the third tells you whether the business is compounding or eroding underneath the story.</p>
+          <p class="watch"><b>What to watch:</b> tomorrow's cloture vote, since a failure pushes everything onto the agency track this thesis already assumes; the CME suit on swaps-versus-futures classification, which sets the rulebook; whether the CFTC's "crypto asset market" designation reaches proposed-rule status; and whether Assistance Fund purchases inflect before any US access exists. The first two are regulatory; the third tells you whether the business is compounding or eroding underneath the story.</p>
         </div>
       </div>
 
@@ -473,7 +499,7 @@
 
 <footer>
   <div class="wrap">
-    <p>Compiled 11 August 2026; revised 30 August 2026. Roadmap dates are as disclosed by the institutions or reported in trade press; projected items are estimates and move often. Verify anything load-bearing before you cite it in an interview.</p>
+    <p>Compiled 11 August 2026; revised 14 September 2026. Roadmap dates are as disclosed by the institutions or reported in trade press; projected items are estimates and move often. Verify anything load-bearing before you cite it in an interview.</p>
     <p>Status definitions — <b style="color:var(--shipping)">Shipping</b>: live services or completed transactions in the last two quarters. <b style="color:var(--building)">Building</b>: dated roadmap, staffing ahead of launch. <b style="color:var(--gated)">Gated</b>: roadmap dependent on market-structure legislation. <b style="color:var(--demand)">Demand side</b>: allocators rather than builders.</p>
   </div>
 </footer>
@@ -502,8 +528,9 @@ const EVENTS = [
   {y:2026,m:7, d:18, kind:"rule",      t:"SEC proposes Regulation Crypto Assets — 401 pages, advanced by written vote"},
   {y:2026,m:7, d:19, kind:"launch",    t:"White House crypto summit — tokenization, market structure, prediction markets"},
   {y:2026,m:7, d:20, kind:"launch",    t:"CFTC Innovation Advisory Committee convenes; Selig orders backup market-structure rules"},
-  {y:2026,m:8, d:15, kind:"projected", t:"Senate returns Sep 14; CLARITY procedural vote set for Sep 15"},
-  {y:2026,m:9, d:1,  kind:"projected", t:"DTCC tokenization broader launch"},
+  {y:2026,m:8, d:14, kind:"statute",   t:"Senate returns from August recess"},
+  {y:2026,m:8, d:15, kind:"projected", t:"CLARITY cloture vote on motion to proceed — 2:15pm ET, 60 votes needed"},
+  {y:2026,m:9, d:1,  kind:"projected", t:"DTCC tokenization full service launch"},
   {y:2026,m:9, d:20, kind:"projected", t:"Reg Crypto comment period closes"},
   {y:2027,m:0, d:18, kind:"projected", t:"GENIUS Act effective date"},
   {y:2027,m:2, kind:"projected", t:"DTCC Stellar go-live"},
@@ -572,7 +599,7 @@ const SEGMENTS = [
 
   {n:"2.6", name:"Market infrastructure &amp; clearing", layer:"Infrastructure layer", status:"shipping",
    firms:"DTCC · CME · ICE/NYSE · Nasdaq · Cboe · The Clearing House · Euroclear · LSEG",
-   take:"Structurally the most important segment and the least discussed by candidates. DTCC is tokenizing against a <b>$114 trillion</b> custody base on a three-year pilot exemption. The open question is interoperability — whether DTC tokens can reach where the liquidity already is.",
+   take:"Structurally the most important segment and the least discussed by candidates. DTCC is tokenizing against a <b>$114 trillion</b> custody base on a three-year pilot exemption. The July production event ran with 25+ firms — JPMorgan tokenized QQQ to open it, with Goldman, BlackRock, Vanguard and NYSE participating. <b>Full service launch is October.</b> The open question is interoperability — whether DTC tokens can reach where the liquidity already is.",
    marks:[[2026,4],[2026,6],[2026,9],[2027,2]],
    roles:[
      ["Product Analyst — Tokenization","Participant onboarding, test-cycle coordination, spec documentation."],
